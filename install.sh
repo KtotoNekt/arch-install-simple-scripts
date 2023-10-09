@@ -55,7 +55,7 @@ then
     read -p "Home раздел: " home_part
 fi
 
-read -p "Путь до монтирования boot: (если у вас UEFI Bios - /mnt/boot/EFI, иначе - /mnt/boot)" $path_boot
+read -p "Путь до монтирования boot: (если у вас UEFI Bios - /mnt/boot/EFI, иначе - /mnt/boot)" path_boot
 
 
 
