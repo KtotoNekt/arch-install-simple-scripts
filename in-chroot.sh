@@ -4,6 +4,8 @@ echo_title() {
     echo "==================="
 }
 
+setfont cyr-sun16
+
 echo_title "Изменения пароля root"
 passwd
 

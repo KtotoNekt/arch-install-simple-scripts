@@ -5,21 +5,21 @@ echo_title() {
 }
 
 connect_to_network() {
-    while (;;)
+    while ( 1 == 1 )
     do
         iwctl station wlan0 scan
         iwctl station wlan0 get-networks
 
         echo "==================="
-        read -p "Выберите сеть: " network
-        read -p "Пароль выбраной сети: " password
+        read -p "Network name: " network
+        read -p "Password: " password
         echo "==================="
 
         if iwctl station wlan0 connect $network --passphrase=$password
         then
-            echo "Не удалось подключится к $network с паролем $password, попробуйте еще раз"
+            echo "Failed to connect to $network with password $password, form again"
         else
-            echo "Вы подключились к сети!"
+            echo "You are connected to the network!"
             break
         fi
     done
@@ -34,11 +34,14 @@ check_network() {
     fi
 }
 
+setfont cyr-sun16
+
 
 echo_title "Разметка диска"
 echo -e "Помните! Для нормальной работы системы, вам нужно создать 3 раздела (4 - если еще создадите домашний раздел):\n 1) 31Mib - Bios Boot\n2) 300-500Mib - EFI System\n 3) N Gib - Linux Filesystem \n4) (не обязательный) N Gib - Linux Filesystem"
+fdisk -l
 read -p "Диск: " disk
-cfdsik $disk
+cfdisk $disk
 fdisk -l $disk
 
 
@@ -46,7 +49,7 @@ echo_title "Formating partions..."
 read -p "Root раздел: " root_part
 mkfs.btrfs -f $root_part
 
-read -p "Boot раздел: " boot_part
+read -p "EFI System раздел: " boot_part
 mkfs.fat -F 32 $boot_part
 
 read -p "Вы создали отдельный разадел для /home? [y/n]: " is_home
@@ -72,14 +75,22 @@ fi
 echo_title "Установка базовой системы..."
 read -p "Процессор (amd, intel): " proc
 read -p "Консольный редактор (по умолчанию: nano): " texteditor
-read -p "Ядро (имя пакета и дополнения к нему): " $core
+read -p "Ядро (имя пакета и дополнения к нему) (Пример: linux-zen linux-zen-headers): " core
+
 if $proc == "amd":
 then
     codes="amd-ucode"
 else
     codes="iucode-tool intel-ucode"
 fi
-pacstrap -i /mnt base base-devel $core dosfstools linux-firmware btrfs-progs texteditor $codes
+
+if $texteditor == "":
+then
+    $texteditor = "nano"
+fi
+
+
+pacstrap -i /mnt base base-devel $core dosfstools linux-firmware btrfs-progs $texteditor $codes
 
 echo_title "Mouting partions.."
 mount $root_part /mnt
@@ -95,7 +106,7 @@ fi
 genfstab -U /mnt >> /mnt/etc/fstab
 
 cp in-chroot.sh /mnt/in-chroot.sh
-cp in-chroot.sh /mnt/init.sh
+cp init.sh /mnt/init.sh
 
 
 echo_title "Вход в chroot.."
