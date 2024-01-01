@@ -90,7 +90,7 @@ then
 fi
 
 
-pacstrap -i /mnt base base-devel $core dosfstools linux-firmware btrfs-progs $texteditor $codes
+pacstrap -K /mnt base base-devel $core dosfstools linux-firmware btrfs-progs $texteditor $codes
 
 echo_title "Mouting partions.."
 mount $root_part /mnt
