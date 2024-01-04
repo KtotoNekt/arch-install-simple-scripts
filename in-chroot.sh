@@ -10,7 +10,7 @@ echo_title "Изменения пароля root"
 passwd
 
 echo_title "Разблокировка репозитория multilib"
-sed "s/#[multilib]/[multilib] s/#Include = \/etc\/pacman.d\/mirrorlist/Include = \/etc\/pacman.d\/mirrorlist" /etc/pacman.conf > /etc/pacman.conf
+sed -i "/\[multilib\]/,/Include/"'s/^# //' /etc/pacman.conf
 
 pacman -Syu
 
@@ -18,7 +18,8 @@ echo_title "Базовая настройка"
 ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 hwclock --systohc
 
-sed "s/#en_US\.UTF-8 UTF-8/en_US\.UTF-8 UTF-8 s/\#ru_RU\.UTF-8 UTF-8/ru_RU\.UTF-8 UTF-8" /etc/locale.gen > /etc/locale.gen
+sed -i "/en_US\.UTF-8/s/#//" locale.gen
+sed -i "/ru_RU\.UTF-8/s/#//" locale.gen
 locale-gen
 
 touch /etc/vconsole.conf
@@ -36,11 +37,11 @@ echo_title "Создание initramfs......."
 mkinitcpio -P
 
 echo_title "Создание пользователя с правами root....."
-sed "s/# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/" /etc/sudoers > /etc/sudoers
+sed -i "s/# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/" /etc/sudoers
 
 read -p "Login: " username
 read -p "Password: " password
-useradd -d /home/koshmar -G wheel -p $password $username 
+useradd -d /home/koshmar -G wheel -p "$password" "$username" 
 
 
 echo_title "Установка grub и других пакетов...."
@@ -53,10 +54,10 @@ systemctl enable NetworkManager
 
 echo_title "Установка пакетов для видео ускорения"
 read -p "Набор для (amd, intel, nvidia+intel): " proc
-if $proc == "amd":
+if [ $proc == "amd" ]  
 then
     video_drivers="lib32-mesa vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader"
-else if $proc == "intel"
+else if [ $proc == "intel" ]
 then
     video_drivers="lib32-mesa vulkan-intel lib32-vulkan-intel vulkan-icd-loader lib32-vulkan-icd-loader libva-media-driver xf86-video-intel"
 else
@@ -69,31 +70,31 @@ echo_title "Установка графической оболочки...."
 read -p "Оболочка (xfce, gnome, kde, cinnamon, deepin, lxde, mate, enlightenment): " display_manager
 
 pacman -S xorg xorg-server 
-if $display_manager == "xfce"
+if [ $display_manager == "xfce" ]
 then 
     pacman -S xfce4 xfce4-goodies lightdm lightdm-gtk-greeter
     systemctl enable lightdm 
-else if $display_manager == "gnome"
+else if [ $display_manager == "gnome" ]
 then 
     pacman -S gnome gnome-extra gdm
     systemctl enable gdm
-else if $display_manager == "kde"
+else if [ $display_manager == "kde" ]
 then 
     pacman -S plasma plasma-wayland-session egl-wayland sddm sddm-kcm packagekit-qt5 kde-applications
     systemctl enable sddm
-else if $display_manager == "cinnamon"
+else if [ $display_manager == "cinnamon" ]
 then 
     pacman -S cinnamon gdm
     systemctl enable gdm
-else if $display_manager == "deepin"
+else if [ $display_manager == "deepin" ]
 then 
     pacman -S deepin deepin-extra lightdm lightdm-deepin-greeter
     systemctl enable lightdm
-else if $display_manager == "enlightenment"
+else if [ $display_manager == "enlightenment" ]
 then 
     pacman -S enlightenment lightdm lightdm-gtk-greeter
     systemctl enable lightdm
-else if $display_manager == "xfce"
+else if [ $display_manager == "xfce" ]
 then 
     pacman -S mate mate-extra mate-panel mate-session-manager
     systemctl enable mdm
