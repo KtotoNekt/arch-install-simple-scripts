@@ -10,7 +10,7 @@ echo_title "Изменения пароля root"
 passwd
 
 echo_title "Разблокировка репозитория multilib"
-sed -i "/\[multilib\]/,/Include/"'s/^# //' /etc/pacman.conf
+sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
 
 pacman -Syu
 
@@ -18,8 +18,8 @@ echo_title "Базовая настройка"
 ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 hwclock --systohc
 
-sed -i "/en_US\.UTF-8/s/#//" locale.gen
-sed -i "/ru_RU\.UTF-8/s/#//" locale.gen
+sed -i "/en_US\.UTF-8/s/#//" /etc/locale.gen
+sed -i "/ru_RU\.UTF-8/s/#//" /etc/locale.gen
 locale-gen
 
 touch /etc/vconsole.conf
@@ -40,14 +40,19 @@ echo_title "Создание пользователя с правами root....
 sed -i "s/# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/" /etc/sudoers
 
 read -p "Login: " username
-read -p "Password: " password
-useradd -d /home/koshmar -G wheel -p "$password" "$username" 
-
+useradd -d /home/koshmar -G wheel "$username" 
+passwd $username
 
 echo_title "Установка grub и других пакетов...."
 pacman -S grub efibootmgr networkmanager network-manager-applet dhclient dhcpcd
-read -p "Диск: " disk
-grub-install $disk
+read -p "Вы устанавливаете систему на внешний накопитель? [y/n] " is_usb
+if [ $is_usb == "n"]
+then
+    read -p "Диск: " disk
+    grub-install $disk
+else
+    grub-install --bootloader-id=GRUB --removable --recheck
+fi
 grub-mkconfig -o /boot/grub/grub.cfg
 
 systemctl enable NetworkManager
@@ -57,7 +62,7 @@ read -p "Набор для (amd, intel, nvidia+intel): " proc
 if [ $proc == "amd" ]  
 then
     video_drivers="lib32-mesa vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader"
-else if [ $proc == "intel" ]
+elif [ $proc == "intel" ]
 then
     video_drivers="lib32-mesa vulkan-intel lib32-vulkan-intel vulkan-icd-loader lib32-vulkan-icd-loader libva-media-driver xf86-video-intel"
 else
@@ -74,27 +79,27 @@ if [ $display_manager == "xfce" ]
 then 
     pacman -S xfce4 xfce4-goodies lightdm lightdm-gtk-greeter
     systemctl enable lightdm 
-else if [ $display_manager == "gnome" ]
+elif [ $display_manager == "gnome" ]
 then 
     pacman -S gnome gnome-extra gdm
     systemctl enable gdm
-else if [ $display_manager == "kde" ]
+elif [ $display_manager == "kde" ]
 then 
     pacman -S plasma plasma-wayland-session egl-wayland sddm sddm-kcm packagekit-qt5 kde-applications
     systemctl enable sddm
-else if [ $display_manager == "cinnamon" ]
+elif [ $display_manager == "cinnamon" ]
 then 
     pacman -S cinnamon gdm
     systemctl enable gdm
-else if [ $display_manager == "deepin" ]
+elif [ $display_manager == "deepin" ]
 then 
     pacman -S deepin deepin-extra lightdm lightdm-deepin-greeter
     systemctl enable lightdm
-else if [ $display_manager == "enlightenment" ]
+elif [ $display_manager == "enlightenment" ]
 then 
     pacman -S enlightenment lightdm lightdm-gtk-greeter
     systemctl enable lightdm
-else if [ $display_manager == "xfce" ]
+elif [ $display_manager == "mate" ]
 then 
     pacman -S mate mate-extra mate-panel mate-session-manager
     systemctl enable mdm

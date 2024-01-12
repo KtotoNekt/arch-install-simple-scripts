@@ -18,10 +18,10 @@ connect_to_network() {
 
         if iwctl station wlan0 connect "$network"
         then
-            echo "Failed to connect to $network"
-        else
             echo "You are connected to the network!"
             break
+        else
+            echo "Failed to connect to $network"
         fi
     done
 }
@@ -65,6 +65,13 @@ fi
 
 read -p "Путь до монтирования boot: (если у вас UEFI Bios - /mnt/boot/EFI, иначе - /mnt/boot)" path_boot
 
+echo_title "Mouting partions.."
+mount $root_part /mnt --mkdir
+mount $boot_part $path_boot --mkdir
+if [ $is_home == "y" ]
+then
+    mount $home_part /mnt/home --mkdir
+fi
 
 
 echo_title "Подключение к сети......."
@@ -77,14 +84,7 @@ else
     dhclient
 fi
 
-echo_title "Mouting partions.."
-mount $root_part /mnt
-mkdir $path_boot
-mount $boot_part $path_boot
-if [ $is_home == "y" ]
-then
-    mount $home_part /mnt/home
-fi
+
 
 echo_title "Установка базовой системы..."
 read -p "Процессор (amd, intel): " proc

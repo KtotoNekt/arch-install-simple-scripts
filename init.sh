@@ -15,10 +15,10 @@ makepkg -sric
 cd ..
 
 read -p "Что у вас (amd, intel, nvidia): "
-if $proc == "amd":
+if  [ $proc == "amd" ]
 then
     opengl_driver="xf86-video-ati"
-else if $proc == "intel"
+elif [ $proc == "intel" ]
 then
     opengl_driver="xf86-video-intel"
 else
@@ -41,7 +41,7 @@ then
 fi 
 
 read -p "Устанавливать дополнительное ПО, для оптимизации? (ananicy-cpp, stacer-bin) [y/n]: " is_install
-if $is_install == "y"
+if [ $is_install == "y" ]
 then
     echo_title "Установка дополнительных программ для оптимизации"
     yay -S stacer-bin
@@ -57,5 +57,5 @@ then
 fi
 
 echo_title "Оптимизация grub..."
-sed "6 s/GRUB_CMDLINE_LINUX_DEFAULT=\"quiet loglevel=3\"/GRUB_CMDLINE_LINUX_DEFAULT=\"quiet loglevel=0 rd.systemd.show_status=auto rd.udev.log_level=0 splash rootfstype=btrfs selinux=0 raid=noautodetect noibrs noibpb no_stf_barrier tsx=on tsx_async_abort=off elevator=noop mitigations=off\"/" /etc/default/grub
+sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=".*"/GRUB_CMDLINE_LINUX_DEFAULT=\"quiet loglevel=0 rd.systemd.show_status=auto rd.udev.log_level=0 splash rootfstype=btrfs selinux=0 raid=noautodetect noibrs noibpb no_stf_barrier tsx=on tsx_async_abort=off elevator=noop mitigations=off\"/' /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
