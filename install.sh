@@ -56,7 +56,7 @@ mkfs.btrfs -f $root_part
 read -p "EFI System раздел: " boot_part
 mkfs.fat -F 32 $boot_part
 
-read -p "Вы создали отдельный разадел для /home? [y/n]: " is_home
+read -p "Вы создали отдельный раздел для /home? [y/n]: " is_home
 if [ $is_home == "y" ]
 then
     read -p "Home раздел: " home_part

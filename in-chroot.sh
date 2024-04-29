@@ -40,7 +40,7 @@ echo_title "Создание пользователя с правами root....
 sed -i "s/# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/" /etc/sudoers
 
 read -p "Login: " username
-useradd -d /home/koshmar -G wheel "$username" 
+useradd -m -G wheel "$username" 
 passwd $username
 
 echo_title "Установка grub и других пакетов...."
